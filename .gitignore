@@ -47,3 +47,8 @@ data/processed/*.json
 
 # Jupyter Notebooks checkpoints
 .ipynb_checkpoints/
+
+# Development Documentation (Keep Private)
+Sprints/
+setup_venv.md
+Project.md
