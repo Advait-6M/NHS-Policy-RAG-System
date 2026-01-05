@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment Variables (NEVER commit API keys!)
+.env
+.env.local
+
+# Logs and Database Files
+logs/
+*.log
+qdrant_storage/
+*.db
+*.sqlite
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary Files
+*.tmp
+*.bak
+*.cache
+eval_debug.log
+
+# Data files (if large)
+data/raw/*.pdf
+data/processed/*.json
+
+# Jupyter Notebooks checkpoints
+.ipynb_checkpoints/

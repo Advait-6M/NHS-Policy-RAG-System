@@ -1,0 +1,62 @@
+# NEPPA Project - Sprint 1 Dependencies
+# PDF and DOCX parsing for data ingestion
+
+# PDF parsing
+PyMuPDF==1.24.8
+
+# DOCX parsing
+python-docx==1.1.2
+
+# Type checking and validation (for type hints)
+typing-extensions==4.11.0
+
+# Environment variable management
+python-dotenv==1.0.1
+
+# NEPPA Project - Sprint 2 Dependencies
+# Vector database and embeddings
+
+# Qdrant vector database client
+qdrant-client>=1.16.0  # Required for RrfQuery and FusionQuery support
+
+# OpenAI API client (for embeddings)
+# Note: Using 0.28.1 for compatibility with qdrant-client and httpcore 1.0.9
+openai==0.28.1
+
+# FastEmbed for sparse embeddings (BM25/Hybrid Search)
+fastembed==0.7.4  # Requires Python 3.10+
+
+# NEPPA Project - Sprint 3 Dependencies
+# RAG Engine and Expert Reasoning
+# Note: Using OpenAI for both query expansion and response generation (no Anthropic dependency needed)
+
+# NEPPA Project - Sprint 4 Dependencies
+# FastAPI backend and Streamlit frontend
+
+# FastAPI web framework
+fastapi==0.115.0
+
+# ASGI server for FastAPI
+uvicorn[standard]==0.32.0
+
+# Streamlit frontend framework
+streamlit==1.40.0
+
+# Pydantic for data validation (v2)
+pydantic==2.9.2
+
+# HTTP client for Streamlit to call FastAPI
+requests==2.32.3
+
+# NEPPA Project - Sprint 5 Dependencies
+# PDF viewer for source document preview
+streamlit-pdf-viewer==0.1.0
+
+# NEPPA Project - Sprint 7 Dependencies
+# RAGAS evaluation framework for RAG quality metrics
+ragas==0.1.17
+
+# LangChain for RAGAS integration and data structures
+langchain==0.3.0
+langchain-openai==0.2.0
+

@@ -1,0 +1,57 @@
+# NEPPA Project Rules & Standards
+
+## 1. Technical Architecture
+- Pattern: Modular Monolith.
+- Python Version: 3.11+.
+- Typing: Mandatory Type Hints for all function signatures.
+- Style: PEP 8 compliance. Use Google-style docstrings.
+- Code Organization: All code in `src/` directory. Sprint documentation in `Sprints/Sprint_X_Name/` folders.
+- Virtual Environment: Always use virtual environment (venv) for development. Activate before running code.
+
+## 2. Medical RAG Safety (CRITICAL)
+- Groundedness: The agent must ONLY answer based on provided context. If information is missing, it must use a "Refusal Trigger" and suggest the user consult a healthcare professional.
+- Policy Hierarchy: Always prioritize Local ICB Policy (Cambridgeshire) > National NICE Guidelines.
+- Citations: Every response must include a source reference (Document Name, Section/Page).
+
+## 3. Dependency Management
+- Incremental Installation: Only suggest/install libraries relevant to the current sprint.
+- Version Control: Always pin library versions in requirements.txt (e.g., langchain==0.3.0).
+
+## 4. UI/UX Standards
+- Theme: NHS Digital Design System (Colors: #005eb8 Blue, #ffffff White).
+- Accessibility: High contrast, clear typography.
+
+## 5. Sprint Structure
+- Sprint Documentation: Each sprint has its own folder in `Sprints/Sprint_X_Name/` with Overview, Implementation Plan, and COMPLETE files.
+- Sprint Master Tracker: Always update `Sprints/00_Sprint_Master_Tracker.md` when completing sprints.
+- Code Location: Keep all code in `src/` following modular monolith pattern. Do not place code in sprint folders.
+
+## 6. Script Management
+- **Production Scripts**: Keep scripts that are required for ongoing development, testing, or regular operations (e.g., `run_ingestion.py`, `test_ingestion.py`, `review_chunks_metadata.py`).
+- **One-Time Analysis Scripts**: Delete scripts created for one-time analysis, debugging, or verification tasks after they have served their purpose.
+- **Script Naming Convention**: One-time analysis scripts should be clearly named to indicate their purpose (e.g., `analyze_*`, `identify_*`, `show_*`, `debug_*`).
+- **Sprint-Specific Cleanup Rules**:
+  - **After Sprint 1**: Delete `show_flowchart_content.py` (document-specific, one-time use).
+  - **After Sprint 2**: Review and delete `identify_chunks_without_headers.py` and `analyze_extraction_quality.py` if not used for verification during Sprint 2.
+  - **Future Sprints**: After each sprint completion, review `scripts/` directory and delete any one-time analysis scripts that are no longer needed.
+- **General Cleanup Rule**: Keep only scripts that will be reused for testing, development, or production workflows. Delete scripts that are:
+  - Document-specific (hardcoded to one file)
+  - One-time verification tasks (already completed)
+  - Debugging scripts (issue resolved)
+  - Analysis scripts (insights already documented)
+
+## 7. Sprint Documentation Updates
+- **Mandatory Update Rule**: After implementing any new features, enhancements, or changes to a sprint, ALWAYS update the corresponding Sprint documentation immediately.
+- **Files to Update**:
+  - `Sprints/Sprint_X_Name/Sprint_X_COMPLETE.md` - Update results, statistics, features, and metadata schema
+  - `Sprints/Sprint_X_Name/Sprint_X_Overview.md` - Update success criteria and key features
+  - `Sprints/Sprint_X_Name/Sprint_X_Implementation_Plan.md` - Update technical details, methods, and implementation logic
+  - `Sprints/00_Sprint_Master_Tracker.md` - Update sprint status, deliverables, and statistics
+- **What to Update**:
+  - Statistics (document counts, chunk counts, coverage percentages)
+  - Feature lists (add new features, mark completed items)
+  - Metadata schema (if new fields are added)
+  - Implementation details (new methods, logic changes)
+  - Success criteria (if new requirements are met)
+- **Update Timing**: Documentation updates should be done as part of the same task/implementation, not deferred to later.
+- **Verification**: Before marking a sprint as complete, verify that all documentation accurately reflects the current implementation state.

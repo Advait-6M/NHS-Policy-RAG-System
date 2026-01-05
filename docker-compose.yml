@@ -1,0 +1,24 @@
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: neppa_qdrant
+    ports:
+      - "6333:6333"  # REST API
+      - "6334:6334"  # gRPC API
+    volumes:
+      # Persistent storage for Qdrant data
+      - ./qdrant_storage:/qdrant/storage
+      # Persistent storage for snapshots (optional but recommended)
+      - ./qdrant_storage/snapshots:/qdrant/snapshots
+    environment:
+      # Disable authentication for local development (NOT for production)
+      - QDRANT__SERVICE__GRPC_PORT=6334
+      - QDRANT__SERVICE__HTTP_PORT=6333
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:6333/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
