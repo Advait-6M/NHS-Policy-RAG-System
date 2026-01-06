@@ -223,12 +223,13 @@ class RAGEngine:
                 dense_vector = self._generate_dense_embedding(term)
                 sparse_vector = self._generate_sparse_embedding(term)
                 
-                # Execute hybrid search
+                # Execute hybrid search (pass search term for intelligent reranking)
                 results = self.vector_store.search(
                     query_vector=dense_vector,
                     query_sparse_vector=sparse_vector,
-                    limit=limit * 2,  # Get more results for deduplication
+                    limit=limit * 3,  # Retrieve 30 chunks, rerank to top 10 (Sprint 8 optimization)
                     use_reranking=True,
+                    query_text=term,  # Pass search term for term-matching in reranking
                 )
                 
                 # Deduplicate by chunk_id
@@ -279,34 +280,37 @@ class RAGEngine:
             ]
             
             # Call OpenAI API
-            logger.info("Generating response with GPT-3.5-turbo...")
+            logger.info("Generating response with GPT-4o-mini...")
             try:
                 if self.use_new_api:
                     response = self.openai_client.chat.completions.create(
-                        model="gpt-3.5-turbo",
+                        model="gpt-4o-mini",  # Upgraded from gpt-3.5-turbo for better accuracy
                         messages=messages,
-                        temperature=0.3,
-                        max_tokens=1500,  # Balanced for comprehensive responses
+                        temperature=0.1,  # Lower temperature for stricter adherence
+                        max_tokens=2000,  # Increased for comprehensive policy responses
+                        stop=["Bibliography", "### 4.", "### Bibliography", "4. Bibliography"],  # Force stop before bibliography (max 4)
                     )
                     response_text = response.choices[0].message.content.strip()
                 else:
                     # Old API (0.28.1)
                     response = openai.ChatCompletion.create(
-                        model="gpt-3.5-turbo",
+                        model="gpt-4o-mini",  # Upgraded for better accuracy
                         messages=messages,
-                        temperature=0.3,
-                        max_tokens=1500,  # Balanced for comprehensive responses
+                        temperature=0.1,  # Lower temperature for stricter adherence
+                        max_tokens=2000,  # Increased for comprehensive policy responses
+                        stop=["Bibliography", "### 4.", "### Bibliography", "4. Bibliography"],  # Force stop before bibliography (max 4)
                     )
                     response_text = response.choices[0].message.content.strip()
             except Exception as e:
-                # Fallback: try gpt-4o-mini if available
-                logger.warning(f"gpt-3.5-turbo failed, trying gpt-4o-mini: {e}")
+                # Fallback: try gpt-3.5-turbo as last resort
+                logger.warning(f"gpt-4o-mini failed, trying gpt-3.5-turbo fallback: {e}")
                 if self.use_new_api:
                     response = self.openai_client.chat.completions.create(
                         model="gpt-4o-mini",
                         messages=messages,
                         temperature=0.3,
                         max_tokens=1500,  # Balanced for comprehensive responses
+                        stop=["Bibliography", "### 4.", "### Bibliography", "4. Bibliography"],  # Force stop before bibliography (max 4)
                     )
                     response_text = response.choices[0].message.content.strip()
                 else:
@@ -316,19 +320,15 @@ class RAGEngine:
                         messages=messages,
                         temperature=0.3,
                         max_tokens=1500,  # Balanced for comprehensive responses
+                        stop=["Bibliography", "### 4.", "### Bibliography", "4. Bibliography"],  # Force stop before bibliography (max 4)
                     )
                     response_text = response.choices[0].message.content.strip()
             
-            # Extract source metadata for citations
+            # Extract source metadata for citations (used by UI sidebar, not appended to response)
             sources = extract_source_metadata(chunks)
             
-            # Format bibliography if not already included in response
-            if "Bibliography" not in response_text and "bibliography" not in response_text.lower():
-                bibliography = format_bibliography(sources)
-                if bibliography:
-                    response_text += "\n\n" + bibliography
-            
-            # Note: Safety disclaimer is handled by the UI, not added to response text
+            # NOTE: Bibliography section removed per user request - all citations are inline only
+            # Sources are displayed in the UI sidebar instead of appended to response text
             
             logger.info("Response generated successfully")
             

@@ -39,7 +39,13 @@ desktop.ini
 *.tmp
 *.bak
 *.cache
-eval_debug.log
+
+# Evaluation and Test Output Files (Keep Private)
+eval_*.log
+eval_*.txt
+*_analysis.txt
+*_results.txt
+run_evaluation.bat
 
 # Data files (if large)
 data/raw/*.pdf

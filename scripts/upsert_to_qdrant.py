@@ -77,14 +77,18 @@ def generate_embeddings(
     """
     logger.info(f"Generating dense embeddings for {len(texts)} texts using {model}")
     embeddings = []
+    
+    # Initialize OpenAI client (new API)
+    from openai import OpenAI
+    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
     # Process in batches to avoid rate limits
     batch_size = 100
     for i in range(0, len(texts), batch_size):
         batch = texts[i : i + batch_size]
         try:
-            response = openai.Embedding.create(model=model, input=batch)
-            batch_embeddings = [item["embedding"] for item in response["data"]]
+            response = client.embeddings.create(model=model, input=batch)
+            batch_embeddings = [item.embedding for item in response.data]
             embeddings.extend(batch_embeddings)
             logger.info(f"Generated dense embeddings for batch {i // batch_size + 1}")
         except Exception as e:

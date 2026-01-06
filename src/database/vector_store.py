@@ -217,6 +217,7 @@ class QdrantVectorStore:
         score_threshold: Optional[float] = None,
         filter_conditions: Optional[Filter] = None,
         use_reranking: bool = True,
+        query_text: str = "",
     ) -> List[Dict[str, Any]]:
         """
         Perform hybrid search (dense + sparse vectors) with Reciprocal Rank Fusion (RRF).
@@ -282,20 +283,24 @@ class QdrantVectorStore:
 
         # Apply custom reranking if enabled
         if use_reranking:
-            results = self.rerank_results(results, limit=limit)
+            results = self.rerank_results(results, limit=limit, query_text=query_text)
 
         return results
 
     def rerank_results(
-        self, results: List[Dict[str, Any]], limit: int = 10
+        self, results: List[Dict[str, Any]], limit: int = 10, query_text: str = ""
     ) -> List[Dict[str, Any]]:
         """
-        Rerank search results using similarity, priority, and recency scores.
+        Rerank search results using similarity, recency, and semantic term matching.
 
-        Final Score Formula:
-        - 70% Similarity Score (from hybrid search)
-        - 20% Priority Score (from metadata: Local=1.0, National=0.8, Legal/Governance=0.5)
-        - 10% Recency Score (based on document age: 2024=1.0, 2022=0.6, linear decay)
+        Final Score Formula (OPTIMIZED FOR SPRINT 8 - Version 5 - UNBIASED):
+        - 50% Similarity Score (from hybrid search: dense + sparse vectors)
+        - 40% Term Match Score (dynamic query-document term alignment)
+        - 10% Recency Score (based on document age: 2024=1.0, linear decay)
+
+        Rationale: Fully generalized reranking without document type bias.
+        All documents (Local, National, Governance) are treated equally.
+        Term matching is dynamic - extracts terms from ANY query without hardcoding.
 
         Args:
             results: List of search results with scores and payloads
@@ -305,16 +310,24 @@ class QdrantVectorStore:
             Reranked list of results
         """
         from datetime import datetime
+        import re
 
         current_year = datetime.now().year
+        
+        # Extract meaningful terms from query (2+ words, excluding common stop words)
+        query_terms = []
+        if query_text:
+            query_lower = query_text.lower()
+            # Simple stop word list (medical domain)
+            stop_words = {"the", "a", "an", "and", "or", "for", "in", "on", "with", "to", "of", "is", "are", "what", "when", "where", "how", "should", "can"}
+            # Extract words of length 3+
+            words = re.findall(r'\b[a-z]{3,}\b', query_lower)
+            query_terms = [w for w in words if w not in stop_words]
         
         reranked = []
         for result in results:
             payload = result.get("payload", {})
             similarity_score = result.get("score", 0.0)
-            
-            # Get priority score from metadata (default to 0.5)
-            priority_score = payload.get("priority_score", 0.5)
             
             # Calculate recency score based on sortable_date
             recency_score = 0.5  # Default for unknown dates
@@ -330,10 +343,23 @@ class QdrantVectorStore:
                 except (ValueError, TypeError):
                     pass
             
-            # Weighted combination: 70% similarity, 20% priority, 10% recency
+            # Calculate term matching score (dynamic, no hardcoded keywords)
+            term_match_score = 0.0
+            if query_terms:
+                # Check filename and clinical_area for query term matches
+                file_name = payload.get("file_name", "").lower()
+                clinical_area = payload.get("clinical_area", "").lower()
+                combined_text = f"{file_name} {clinical_area}"
+                
+                # Count how many query terms appear in document metadata
+                matches = sum(1 for term in query_terms if term in combined_text)
+                # Normalize: 0 matches = 0.0, 3+ matches = 1.0
+                term_match_score = min(1.0, matches / 3.0)
+            
+            # Weighted combination: 50% similarity, 40% term match, 10% recency (V5 - UNBIASED)
             final_score = (
-                0.70 * similarity_score +
-                0.20 * priority_score +
+                0.50 * similarity_score +
+                0.40 * term_match_score +
                 0.10 * recency_score
             )
             
@@ -341,8 +367,8 @@ class QdrantVectorStore:
                 "id": result["id"],
                 "score": final_score,
                 "original_score": similarity_score,
-                "priority_score": priority_score,
                 "recency_score": recency_score,
+                "term_match_score": term_match_score,
                 "payload": payload,
             })
         

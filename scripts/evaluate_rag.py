@@ -38,18 +38,18 @@ load_dotenv()
 
 # No pre-warming needed with Langchain wrappers
 
-# --- GOLDEN DATASET (10 Questions) ---
+# --- GOLDEN DATASET (Diabetes-Focused) ---
+# Import diabetes-specific questions
+from golden_questions_diabetes import get_golden_questions
+
+# Load all diabetes questions, but we'll only use first 3 for quick testing
+ALL_GOLDEN_QUESTIONS = get_golden_questions()
+
+# For quick testing: use first 3 questions
+# To run full evaluation: change to ALL_GOLDEN_QUESTIONS
 GOLDEN_QUESTIONS = [
-    {"question": "What is the policy for using SGLT2 inhibitors like Dapagliflozin for heart failure?", "ground_truth": "Dapagliflozin is approved for heart failure treatment. According to local CPICS prescribing support documents, Dapagliflozin can be used for heart failure with reduced ejection fraction (HFrEF) and heart failure with preserved ejection fraction (HFpEF). The medication should be prescribed according to NICE guidelines and local formulary recommendations."},
-    {"question": "What are the eligibility criteria for continuous glucose monitoring?", "ground_truth": "Eligibility for CGM typically requires Type 1 diabetes or Type 2 diabetes with specific criteria such as recurrent hypoglycemia, impaired awareness of hypoglycemia, or intensive insulin therapy. Local Cambridgeshire & Peterborough ICB policies may have additional specific criteria."},
-    {"question": "What are my rights if my surgery is cancelled?", "ground_truth": "According to the NHS Constitution, if your surgery is cancelled, you have the right to be offered another binding date within 28 days, or the NHS will take all reasonable steps to offer a range of alternative providers."},
-    {"question": "How do I request funding for a non-standard treatment?", "ground_truth": "To request funding for a non-standard treatment, you need to submit an Individual Funding Request (IFR) through your GP or consultant. The IFR process involves completing a specific form, providing clinical evidence, and demonstrating exceptional clinical circumstances."},
-    {"question": "What is the policy for Tirzepatide in type 2 diabetes?", "ground_truth": "Tirzepatide is a GLP-1 receptor agonist approved for Type 2 diabetes management when specific BMI criteria are met. The medication should be prescribed according to NICE guidelines and local formulary recommendations."},
-    {"question": "What are the prescribing guidelines for insulin needles?", "ground_truth": "Insulin needles should be prescribed according to local formulary guidelines and are typically covered under local diabetes management policies."},
-    {"question": "What is the policy for Dapagliflozin in chronic kidney disease?", "ground_truth": "Dapagliflozin is approved for chronic kidney disease (CKD) treatment when specific criteria are met, including eGFR thresholds and albuminuria levels."},
-    {"question": "What monitoring technology is available for diabetes management?", "ground_truth": "Diabetes monitoring technology includes continuous glucose monitoring (CGM) systems, flash glucose monitoring, and self-monitoring blood glucose (SMBG) devices."},
-    {"question": "What are the key principles of the NHS Constitution?", "ground_truth": "The NHS Constitution key principles include: access to NHS services based on clinical need, not ability to pay; respect, dignity, and compassion in care; involvement in decisions about treatment; and the right to complain and receive a response."},
-    {"question": "What are the standard operating procedures for Individual Funding Requests?", "ground_truth": "The Standard Operating Procedures for IFRs outline the process: submission of a completed IFR form with clinical evidence, initial triage and validation, clinical review by the IFR panel, decision-making based on exceptionality criteria, and communication of the decision to the applicant."}
+    {"question": q["question"], "ground_truth": q["ground_truth"]} 
+    for q in ALL_GOLDEN_QUESTIONS  # Use all questions, slice in prepare_evaluation_data
 ]
 
 def prepare_evaluation_data(engine: RAGEngine, num_questions: int) -> List[Dict[str, Any]]:
@@ -210,7 +210,8 @@ if __name__ == "__main__":
         print(f"[DEBUG] Ragas version: {ragas.__version__}\n", flush=True)
         
         engine = RAGEngine()
-        # Full evaluation with all 10 golden questions
+        # Quick evaluation with 3 questions for faster iteration
+        # (Change to 10 for full evaluation before final reporting)
         num_questions = 10
         data = prepare_evaluation_data(engine, num_questions=num_questions)
         
