@@ -65,26 +65,6 @@ Citation Enrichment
    - 10 golden questions covering key policy domains
    - RAGAS metrics for systematic quality assessment
    - Windows-optimized for reliable execution
-
----
-
-## 📊 Evaluation Framework
-
-Systematic quality assessment using RAGAS framework with 10 golden questions covering:
-
-- **Drug Policies** - SGLT2 inhibitors, Tirzepatide, continuous glucose monitoring
-- **Patient Rights** - NHS Constitution, surgery cancellation procedures
-- **Clinical Guidelines** - NICE guidance integration, local formulary compliance
-- **Governance** - Individual Funding Request (IFR) processes and SOPs
-
-### Evaluation Metrics
-
-- **Faithfulness** - Measures if responses are grounded in source documents (prevents hallucination)
-- **Answer Relevancy** - Assesses relevance and focus of generated responses
-- **Context Precision** - Evaluates retrieval quality and information completeness
-
-*Comprehensive evaluation and optimization in progress*
-
 ---
 
 ## 🛠️ Technologies Used
