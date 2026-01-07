@@ -58,6 +58,7 @@ data/processed/*.json
 Sprints/
 setup_venv.md
 Project.md
+.cursorrules
 
 # One-time Testing/Debug Scripts (Not for Production)
 scripts/debug_*.py
